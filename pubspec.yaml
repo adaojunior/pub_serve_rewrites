@@ -1,6 +1,8 @@
 name: pub_serve_rewrites
 description: Helps pub serve to support apps using HTML5 pushState for navigation during development.
 version: 0.0.1
+author: Adao Junior <itsjunnior@gmail.com>
+homepage: https://github.com/adaojunior/pub_serve_rewrites
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:

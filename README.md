@@ -28,8 +28,8 @@ main(){
   ..ignoreAll([
     r'^(\S+\.(json|html|js|dart|css|png))$',
   ])
-  ..proxy('/admin/(.*)',to:'admin.html')
-  ..proxy(r'(.*)',to:'/index.html')
+  ..rewrite('/admin/(.*)',to:'admin.html')
+  ..rewrite(r'(.*)',to:'/index.html')
   ..start('http://localhost:8080');
 }
 ```

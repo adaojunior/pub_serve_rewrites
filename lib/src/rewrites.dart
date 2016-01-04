@@ -28,12 +28,12 @@ class Server {
 
   ignore(String target) => _ignores.add(new RegExp(target));
 
-  proxy(String target, {String to}) =>
+  rewrite(String target, {String to}) =>
       _proxies.add(new _Target(new RegExp(target), to));
 
   ignoreAll(List<String> targets) => targets.forEach(ignore);
 
-  proxyAll(List<String> targets, {String to}) =>
+  rewriteAll(List<String> targets, {String to}) =>
       targets.forEach((target) => proxy(target, to: to));
 
   start(String target) {

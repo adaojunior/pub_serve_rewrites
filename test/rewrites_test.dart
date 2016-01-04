@@ -3,7 +3,6 @@
 
 library rewrites.test;
 
-import 'package:rewrites/rewrites.dart';
 import 'package:test/test.dart';
 
 void main() {

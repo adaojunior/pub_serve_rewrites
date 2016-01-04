@@ -1,4 +1,4 @@
-# Rewrites
+# PubServe Rewrites
 
 > This library is highly experimental and its purpose is to be used during development.
 
@@ -21,7 +21,7 @@ All others requests that are not ignored or that matches with `/admin/(.*)` will
 
 ```
 
-import 'package:rewrites/rewrites.dart';
+import 'package:pub_serve_rewrites/rewrites.dart';
 
 main(){
   server()

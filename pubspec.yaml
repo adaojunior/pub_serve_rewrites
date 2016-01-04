@@ -1,0 +1,9 @@
+name: rewrites
+description: A starting point for Dart libraries or applications.
+version: 0.0.1
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+dependencies:
+  shelf_proxy: "^0.1.0+2"
+dev_dependencies:
+  test: '>=0.12.0 <0.13.0'

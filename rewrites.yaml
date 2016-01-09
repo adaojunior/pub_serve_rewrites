@@ -1,0 +1,7 @@
+ignore:
+- ^(\S+\.(json|html|js|dart|css|png))$
+rewrites:
+- rewrite: /admin/(.*)
+  to: admin.html
+- rewrite: (.*)
+  to: index.html

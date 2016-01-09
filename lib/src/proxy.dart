@@ -50,7 +50,6 @@ class ProxyServer {
   Handler _handler(String target) {
     Handler handler = proxyHandler(target);
     return (Request request) {
-      print('[${request.method}] ${request.url.path}');
       String path = "/${request.url.path}";
 
       if (_isIgnored(path))

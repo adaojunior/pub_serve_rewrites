@@ -1,43 +1,48 @@
 // Copyright (c) 2016, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library rewrites.base;
+library rewrites.src.proxy;
 
 import 'package:shelf/shelf_io.dart' as shelf;
 import 'package:shelf/shelf.dart';
 import 'package:shelf_proxy/shelf_proxy.dart' show proxyHandler;
 import 'package:shelf/src/message.dart' show getBody;
+import 'pubserve.dart';
+import 'rules.dart';
+import 'dart:convert';
 
 const String DEFAULT_HOST = 'localhost';
-const int DEFAULT_PORT = 8081;
+const int DEFAULT_PORT = 8080;
 
-class _Target {
-  final RegExp regex;
-  final String to;
+class ProxyServer {
 
-  _Target(this.regex, this.to);
-}
-
-class Server {
-  List<RegExp> _ignores = [];
-  List<_Target> _proxies = [];
   final String host;
   final int port;
+  final RewriteRules rules;
+  final PubServe pubserve;
 
-  Server({this.host: DEFAULT_HOST, this.port: DEFAULT_PORT});
+  ProxyServer._(this.host,this.port,this.rules,this.pubserve);
 
-  ignore(String target) => _ignores.add(new RegExp(target));
+  static start({String host,int port,RewriteRules rules,PubServe pubserve}) async {
+    ProxyServer server = new ProxyServer._(host,port,rules,pubserve);
+    await pubserve.start();
+    server._handlePubServeOutput();
+    server._start();
+  }
 
-  rewrite(String target, {String to}) =>
-      _proxies.add(new _Target(new RegExp(target), to));
+  _handlePubServeOutput(){
+    pubserve.stdout.transform(UTF8.decoder).listen(_onData);
+  }
 
-  ignoreAll(List<String> targets) => targets.forEach(ignore);
+  _onData(String data){
+    data = data.trim();
+    data = data.replaceAll('http://${pubserve.hostname}:${pubserve.port}','http://${host}:${port}');
+    print(data);
+  }
 
-  rewriteAll(List<String> targets, {String to}) =>
-      targets.forEach((target) => proxy(target, to: to));
-
-  start(String target) {
-    shelf.serve(_handler(target), host, port).then((server) {
+  _start(){
+    Uri uri = new Uri(scheme:'http',host: pubserve.hostname,port: pubserve.port);
+    shelf.serve(_handler(uri.toString()), host, port).then((server) {
       print('Proxying at http://${server.address.host}:${server.port}');
     });
   }
@@ -45,12 +50,12 @@ class Server {
   Handler _handler(String target) {
     Handler handler = proxyHandler(target);
     return (Request request) {
-      print('[${request.method}] ${request.url.path}');
-
       String path = "/${request.url.path}";
-      if (_isIgnored(path)) return handler(request);
 
-      _Target target = _hasProxyMatch(path);
+      if (_isIgnored(path))
+        return handler(request);
+
+      RewriteRule target = _rewriteMatch(path);
 
       if (target != null) {
         request =
@@ -61,16 +66,16 @@ class Server {
     };
   }
 
-  _hasProxyMatch(String path) {
-    _Target target = _proxies.firstWhere((_Target target) {
-      return target.regex.hasMatch(path);
+  RewriteRule _rewriteMatch(String path) {
+    RewriteRule rule = rules.rules.firstWhere((RewriteRule target) {
+      return target.pattern.hasMatch(path);
     }, orElse: () => null);
 
-    return target;
+    return rule;
   }
 
   bool _isIgnored(String path) {
-    var match = _ignores.firstWhere((RegExp regex) {
+    var match = rules.ignored.firstWhere((RegExp regex) {
       return regex.hasMatch(path);
     }, orElse: () => null);
 

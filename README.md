@@ -4,39 +4,41 @@
 
 > Feedback and PR's are welcome
 
-
 ## Why
 To help `pub serve` to support apps using HTML5 pushState for navigation during development.
 
 Rewrite uses pattern matching to check if a given URL will be ignored or if changed to a new destination URL.
 
+## Install
+
+```
+> pub global activate --source git https://github.com/adaojunior/pub_serve_rewrites.git
+```
 ## How to use
+Create a `rewrites.yaml` file in the root of your project (same folder as your `pubspec.yaml`) and setup your rewrite rules.
+
 In the example bellow all `json|html|js|dart|css|png` will be ignored and the server proxied decide what will be served.
 
 When the browser makes a request to eg: `/admin/dashboard` it will receive the content of `admin.html`.
 
 All others requests that are not ignored or that matches with `/admin/(.*)` will be proxied to `index.html`.
 
-`bin/dev_server.dart`
-
+```
+# rewrites.yaml
+ignore:
+- ^(\S+\.(json|html|js|dart|css|png))$
+rewrites:
+- rewrite: /admin/(.*)
+  to: admin.html
+- rewrite: (.*)
+  to: index.html
 ```
 
-import 'package:pub_serve_rewrites/rewrites.dart';
-
-main(){
-  server()
-  ..ignoreAll([
-    r'^(\S+\.(json|html|js|dart|css|png))$',
-  ])
-  ..rewrite('/admin/(.*)',to:'admin.html')
-  ..rewrite(r'(.*)',to:'/index.html')
-  ..start('http://localhost:8080');
-}
+Run the following code in your terminal
 ```
-
-`pub run bin/dev_server.dart`
-
-You also must start `pub serve` as it is still not integrated into this library yet,
-it may change in the future.
-
-The URL on `start(...)` is the proxied URL (pub serve) and by default the server you should use to access your app should be `localhost:8081`
+> rewrites
+```
+If you need help run the command bellow
+```
+> rewrites --help
+```

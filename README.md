@@ -23,10 +23,10 @@ When the browser makes a request to eg: `/admin/dashboard` it will receive the c
 
 All others requests that are not ignored or that matches with `/admin/(.*)` will be proxied to `index.html`.
 
-```
+```yaml
 # rewrites.yaml
 ignore:
-- ^(\S+\.(json|html|js|dart|css|png))$
+- \.(json|html|js|dart|css|png)$
 rewrites:
 - rewrite: /admin/(.*)
   to: admin.html
